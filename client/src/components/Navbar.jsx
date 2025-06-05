@@ -2,113 +2,97 @@
 
 import { useState } from "react"
 import { Link, useLocation } from "react-router-dom"
-import { Baby, Menu, X, LogOut, User } from "lucide-react"
+import { Shield, Menu, X, User, LogOut } from "lucide-react"
 
 const Navbar = ({ user, onLogout }) => {
-  const [isOpen, setIsOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [isProfileOpen, setIsProfileOpen] = useState(false)
   const location = useLocation()
 
-  const navigation = [
-    { name: "Dashboard", href: "/dashboard" },
-    { name: "Object Detection", href: "/object-detection" },
-    { name: "Emotion Detection", href: "/emotion-detection" },
-    { name: "Baby Profile", href: "/baby-profile" },
+  const navItems = [
+    { path: "/dashboard", label: "Dashboard" },
+    { path: "/object-detection", label: "Object Detection" },
+    { path: "/emotion-detection", label: "Emotion Detection" },
+    { path: "/feeding-tracker", label: "Feeding Tracker" },
+    { path: "/baby-profile", label: "Baby Profile" },
   ]
 
-  const isActive = (href) => location.pathname === href
-
   return (
-    <nav className="bg-white shadow-lg">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between h-16">
-          <div className="flex items-center">
-            <Link to="/dashboard" className="flex items-center">
-              <Baby className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SmartBaby</span>
-            </Link>
-          </div>
+    <nav className="bg-gray-900/80 backdrop-blur-sm border-b border-gray-800 sticky top-0 z-50">
+      <div className="container mx-auto px-6">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link to="/dashboard" className="flex items-center space-x-2">
+            <Shield className="h-8 w-8 text-purple-400" />
+            <span className="text-xl font-bold text-white">BabyCare AI</span>
+          </Link>
 
           {/* Desktop Navigation */}
           <div className="hidden md:flex items-center space-x-8">
-            {navigation.map((item) => (
+            {navItems.map((item) => (
               <Link
-                key={item.name}
-                to={item.href}
-                className={`px-3 py-2 rounded-md text-sm font-medium ${
-                  isActive(item.href)
-                    ? "text-blue-600 bg-blue-50"
-                    : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
+                key={item.path}
+                to={item.path}
+                className={`text-sm font-medium transition-colors ${
+                  location.pathname === item.path ? "text-purple-400" : "text-gray-300 hover:text-white"
                 }`}
               >
-                {item.name}
+                {item.label}
               </Link>
             ))}
           </div>
 
-          {/* User Menu */}
-          <div className="hidden md:flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <User className="h-5 w-5 text-gray-400" />
-              <span className="text-sm text-gray-700">{user?.name}</span>
-            </div>
+          {/* Profile Dropdown */}
+          <div className="relative">
             <button
-              onClick={onLogout}
-              className="flex items-center space-x-1 text-gray-700 hover:text-red-600 px-3 py-2 rounded-md text-sm font-medium"
+              onClick={() => setIsProfileOpen(!isProfileOpen)}
+              className="flex items-center space-x-2 text-white hover:text-purple-400 transition-colors"
             >
-              <LogOut className="h-4 w-4" />
-              <span>Logout</span>
+              <User className="h-5 w-5" />
+              <span className="hidden md:block">{user?.name}</span>
             </button>
-          </div>
 
-          {/* Mobile menu button */}
-          <div className="md:hidden flex items-center">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              className="text-gray-700 hover:text-blue-600 focus:outline-none focus:text-blue-600"
-            >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </button>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Navigation */}
-      {isOpen && (
-        <div className="md:hidden">
-          <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3 bg-white border-t">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={`block px-3 py-2 rounded-md text-base font-medium ${
-                  isActive(item.href)
-                    ? "text-blue-600 bg-blue-50"
-                    : "text-gray-700 hover:text-blue-600 hover:bg-gray-50"
-                }`}
-                onClick={() => setIsOpen(false)}
-              >
-                {item.name}
-              </Link>
-            ))}
-            <div className="border-t pt-4 mt-4">
-              <div className="flex items-center px-3 py-2">
-                <User className="h-5 w-5 text-gray-400 mr-2" />
-                <span className="text-sm text-gray-700">{user?.name}</span>
+            {isProfileOpen && (
+              <div className="absolute right-0 mt-2 w-48 bg-gray-800 rounded-lg shadow-lg border border-gray-700 py-2">
+                <div className="px-4 py-2 border-b border-gray-700">
+                  <p className="text-white font-medium">{user?.name}</p>
+                  <p className="text-gray-400 text-sm">{user?.email}</p>
+                </div>
+                <button
+                  onClick={onLogout}
+                  className="w-full text-left px-4 py-2 text-gray-300 hover:text-white hover:bg-gray-700 flex items-center space-x-2"
+                >
+                  <LogOut className="h-4 w-4" />
+                  <span>Sign Out</span>
+                </button>
               </div>
-              <button
-                onClick={() => {
-                  onLogout()
-                  setIsOpen(false)
-                }}
-                className="flex items-center w-full text-left px-3 py-2 text-red-600 hover:bg-red-50 rounded-md"
-              >
-                <LogOut className="h-4 w-4 mr-2" />
-                Logout
-              </button>
-            </div>
+            )}
           </div>
+
+          {/* Mobile Menu Button */}
+          <button onClick={() => setIsMenuOpen(!isMenuOpen)} className="md:hidden text-white">
+            {isMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+          </button>
         </div>
-      )}
+
+        {/* Mobile Navigation */}
+        {isMenuOpen && (
+          <div className="md:hidden py-4 border-t border-gray-800">
+            {navItems.map((item) => (
+              <Link
+                key={item.path}
+                to={item.path}
+                onClick={() => setIsMenuOpen(false)}
+                className={`block py-2 text-sm font-medium transition-colors ${
+                  location.pathname === item.path ? "text-purple-400" : "text-gray-300 hover:text-white"
+                }`}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </div>
+        )}
+      </div>
     </nav>
   )
 }

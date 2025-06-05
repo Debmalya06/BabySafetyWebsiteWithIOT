@@ -3,13 +3,14 @@
 import { useState, useEffect } from "react"
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom"
 import LandingPage from "./components/LandingPage"
-import Login from "./components/Login"
-import Register from "./components/Register"
+import LoginPage from "./components/LoginPage"
+import RegisterPage from "./components/RegisterPage"
 import Dashboard from "./components/Dashboard"
 import ObjectDetection from "./components/ObjectDetection"
 import EmotionDetection from "./components/EmotionDetection"
+import FeedingTracker from "./components/FeedingTracker"
 import BabyProfile from "./components/BabyProfile"
-import FeedingSchedule from "./components/FeedingSchedule"
+import "./App.css"
 
 function App() {
   const [isAuthenticated, setIsAuthenticated] = useState(false)
@@ -43,11 +44,11 @@ function App() {
           <Route path="/" element={<LandingPage />} />
           <Route
             path="/login"
-            element={isAuthenticated ? <Navigate to="/dashboard" /> : <Login onLogin={handleLogin} />}
+            element={isAuthenticated ? <Navigate to="/dashboard" /> : <LoginPage onLogin={handleLogin} />}
           />
           <Route
             path="/register"
-            element={isAuthenticated ? <Navigate to="/dashboard" /> : <Register onRegister={handleLogin} />}
+            element={isAuthenticated ? <Navigate to="/dashboard" /> : <RegisterPage onLogin={handleLogin} />}
           />
           <Route
             path="/dashboard"
@@ -66,14 +67,14 @@ function App() {
             }
           />
           <Route
-            path="/baby-profile"
-            element={isAuthenticated ? <BabyProfile user={user} onLogout={handleLogout} /> : <Navigate to="/login" />}
+            path="/feeding-tracker"
+            element={
+              isAuthenticated ? <FeedingTracker user={user} onLogout={handleLogout} /> : <Navigate to="/login" />
+            }
           />
           <Route
-            path="/feeding-schedule"
-            element={
-              isAuthenticated ? <FeedingSchedule user={user} onLogout={handleLogout} /> : <Navigate to="/login" />
-            }
+            path="/baby-profile"
+            element={isAuthenticated ? <BabyProfile user={user} onLogout={handleLogout} /> : <Navigate to="/login" />}
           />
         </Routes>
       </div>

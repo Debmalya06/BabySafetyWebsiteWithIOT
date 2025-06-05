@@ -1,196 +1,166 @@
 import { Link } from "react-router-dom"
-import { Shield, Heart, Camera, Brain, Phone, Baby } from "lucide-react"
+import { Shield, Heart, Brain } from "lucide-react"
 
 const LandingPage = () => {
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-purple-50">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 relative overflow-hidden">
+      {/* Grid Background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
+
       {/* Navigation */}
-      <nav className="bg-white shadow-lg">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between h-16">
-            <div className="flex items-center">
-              <Baby className="h-8 w-8 text-blue-600" />
-              <span className="ml-2 text-xl font-bold text-gray-900">SmartBaby Monitor</span>
-            </div>
-            <div className="flex items-center space-x-4">
-              <Link to="/login" className="text-gray-700 hover:text-blue-600 px-3 py-2 rounded-md text-sm font-medium">
-                Login
-              </Link>
-              <Link
-                to="/register"
-                className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm font-medium"
-              >
-                Register
-              </Link>
-            </div>
-          </div>
+      <nav className="flex justify-between items-center p-6 md:p-8 relative z-10">
+        <div className="flex items-center space-x-2">
+          <Shield className="h-8 w-8 text-purple-400" />
+          <span className="text-2xl font-bold text-white">BabyCare AI</span>
+        </div>
+        <div className="flex space-x-4">
+          <Link to="/login" className="text-white hover:text-purple-300 transition-colors">
+            Sign In
+          </Link>
+          <Link
+            to="/register"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-6 py-2 rounded-lg transition-colors"
+          >
+            Get Started
+          </Link>
         </div>
       </nav>
 
       {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-7xl mx-auto text-center">
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
-            Smart Baby <span className="text-blue-600">Monitoring</span> System
-          </h1>
-          <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Advanced IoT-powered baby monitoring with AI object detection, emotion analysis, and intelligent feeding
-            management for complete peace of mind.
-          </p>
-          <div className="flex flex-col sm:flex-row gap-4 justify-center">
-            <Link
-              to="/register"
-              className="bg-blue-600 hover:bg-blue-700 text-white px-8 py-3 rounded-lg text-lg font-semibold"
-            >
-              Get Started
-            </Link>
-            <Link
-              to="/login"
-              className="border-2 border-blue-600 text-blue-600 hover:bg-blue-600 hover:text-white px-8 py-3 rounded-lg text-lg font-semibold"
-            >
-              Sign In
-            </Link>
-          </div>
+      <div className="container mx-auto px-6 py-16 text-center relative z-10">
+        <h1 className="text-5xl md:text-7xl font-bold text-white mb-6">
+          Transform Your Baby's
+          <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 to-pink-400">
+            {" "}
+            Safety with AI Power
+          </span>
+        </h1>
+        <p className="text-xl text-gray-300 mb-8 max-w-3xl mx-auto">
+          Advanced IoT sensors combined with AI technology to monitor your baby's safety, detect emotions, and provide
+          intelligent feeding recommendations in real-time.
+        </p>
+        <div className="flex flex-col sm:flex-row gap-4 justify-center">
+          <Link
+            to="/register"
+            className="bg-purple-600 hover:bg-purple-700 text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors"
+          >
+            Start Monitoring
+          </Link>
+          <button className="border border-purple-400 text-purple-400 hover:bg-purple-400 hover:text-white px-8 py-4 rounded-lg text-lg font-semibold transition-colors">
+            Watch Demo
+          </button>
         </div>
-      </section>
+      </div>
 
       {/* Features Section */}
-      <section className="py-20 bg-white">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">Advanced Baby Monitoring Features</h2>
-            <p className="text-xl text-gray-600">Comprehensive IoT solution with AI-powered monitoring and analysis</p>
+      <div className="container mx-auto px-6 py-16 relative z-10">
+        <h2 className="text-4xl font-bold text-white text-center mb-12">Intelligent Baby Monitoring Features</h2>
+        <div className="grid md:grid-cols-3 gap-8">
+          <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-xl border border-gray-700">
+            <Shield className="h-12 w-12 text-purple-400 mb-4" />
+            <h3 className="text-2xl font-bold text-white mb-4">Object Detection</h3>
+            <p className="text-gray-300">
+              Real-time AI-powered object detection with automatic emergency alerts to parents when potential hazards
+              are detected near your baby.
+            </p>
           </div>
+          <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-xl border border-gray-700">
+            <Heart className="h-12 w-12 text-purple-400 mb-4" />
+            <h3 className="text-2xl font-bold text-white mb-4">Emotion Detection</h3>
+            <p className="text-gray-300">
+              Advanced emotion recognition to understand your baby's feelings and provide insights into their comfort
+              and well-being.
+            </p>
+          </div>
+          <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-xl border border-gray-700">
+            <Brain className="h-12 w-12 text-purple-400 mb-4" />
+            <h3 className="text-2xl font-bold text-white mb-4">Smart Feeding</h3>
+            <p className="text-gray-300">
+              Intelligent feeding tracker with AI analysis to determine crying reasons and provide personalized feeding
+              recommendations.
+            </p>
+          </div>
+        </div>
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {/* Object Detection */}
-            <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl">
-              <div className="bg-blue-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Camera className="h-6 w-6 text-white" />
+      {/* IoT Sensors Section */}
+      <div className="container mx-auto px-6 py-16 relative z-10">
+        <div className="grid md:grid-cols-2 gap-12 items-center">
+          <div>
+            <h2 className="text-4xl font-bold text-white mb-6">Advanced IoT Sensor Network</h2>
+            <p className="text-gray-300 mb-8">
+              Our comprehensive sensor system monitors your baby's environment 24/7 with precision and reliability.
+            </p>
+            <div className="space-y-4">
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <span className="text-white">Temperature & Humidity Sensors</span>
               </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Object Detection</h3>
-              <p className="text-gray-600">
-                Real-time AI-powered object detection around baby's surface with instant emergency alerts to parents.
-              </p>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <span className="text-white">Motion Detection Sensors</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <span className="text-white">Sound & Cry Detection</span>
+              </div>
+              <div className="flex items-center space-x-3">
+                <div className="w-2 h-2 bg-purple-400 rounded-full"></div>
+                <span className="text-white">Air Quality Monitoring</span>
+              </div>
             </div>
-
-            {/* Emotion Detection */}
-            <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl">
-              <div className="bg-purple-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Brain className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Emotion Analysis</h3>
-              <p className="text-gray-600">
-                Advanced emotion detection to understand baby's mood and crying patterns with AI analysis.
-              </p>
-            </div>
-
-            {/* Emergency Alerts */}
-            <div className="bg-gradient-to-br from-red-50 to-red-100 p-6 rounded-xl">
-              <div className="bg-red-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Phone className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Emergency Calls</h3>
-              <p className="text-gray-600">
-                Automatic emergency calls to parents when potential dangers are detected around the baby.
-              </p>
-            </div>
-
-            {/* IoT Sensors */}
-            <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl">
-              <div className="bg-green-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Shield className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">IoT Sensors</h3>
-              <p className="text-gray-600">
-                Temperature, humidity, and gas detection sensors for complete environmental monitoring.
-              </p>
-            </div>
-
-            {/* Feeding Management */}
-            <div className="bg-gradient-to-br from-yellow-50 to-yellow-100 p-6 rounded-xl">
-              <div className="bg-yellow-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Heart className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Feeding Schedule</h3>
-              <p className="text-gray-600">
-                Comprehensive feeding management with health tracking and AI-powered cry analysis.
-              </p>
-            </div>
-
-            {/* Health Monitoring */}
-            <div className="bg-gradient-to-br from-indigo-50 to-indigo-100 p-6 rounded-xl">
-              <div className="bg-indigo-600 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                <Baby className="h-6 w-6 text-white" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Health Tracking</h3>
-              <p className="text-gray-600">
-                Monitor baby's health conditions and get insights on crying reasons through AI analysis.
-              </p>
+          </div>
+          <div className="relative">
+            <div className="bg-gradient-to-r from-purple-600 to-pink-600 p-8 rounded-2xl">
+              <img
+                src="/placeholder.svg?height=300&width=400"
+                alt="IoT Sensors Dashboard"
+                className="w-full h-64 object-cover rounded-lg"
+              />
             </div>
           </div>
         </div>
-      </section>
+      </div>
 
-      {/* How It Works */}
-      <section className="py-20 bg-gray-50">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">How It Works</h2>
-            <p className="text-xl text-gray-600">Simple setup, powerful monitoring, intelligent analysis</p>
+      {/* Stats Section */}
+      <div className="container mx-auto px-6 py-16 relative z-10">
+        <div className="grid md:grid-cols-4 gap-8 text-center">
+          <div>
+            <div className="text-4xl font-bold text-purple-400 mb-2">99.9%</div>
+            <div className="text-gray-300">Accuracy Rate</div>
           </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            <div className="text-center">
-              <div className="bg-blue-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white text-xl font-bold">1</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Setup IoT Sensors</h3>
-              <p className="text-gray-600">
-                Install temperature, humidity, and gas detection sensors in baby's room for environmental monitoring.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-purple-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white text-xl font-bold">2</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">AI Monitoring</h3>
-              <p className="text-gray-600">
-                Our AI models continuously monitor for objects and analyze baby's emotions and crying patterns.
-              </p>
-            </div>
-
-            <div className="text-center">
-              <div className="bg-green-600 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4">
-                <span className="text-white text-xl font-bold">3</span>
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-2">Smart Alerts</h3>
-              <p className="text-gray-600">
-                Receive instant notifications and emergency calls when attention is needed for your baby's safety.
-              </p>
-            </div>
+          <div>
+            <div className="text-4xl font-bold text-purple-400 mb-2">24/7</div>
+            <div className="text-gray-300">Monitoring</div>
+          </div>
+          <div>
+            <div className="text-4xl font-bold text-purple-400 mb-2">10K+</div>
+            <div className="text-gray-300">Happy Parents</div>
+          </div>
+          <div>
+            <div className="text-4xl font-bold text-purple-400 mb-2">5★</div>
+            <div className="text-gray-300">User Rating</div>
           </div>
         </div>
-      </section>
+      </div>
 
       {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center">
-            <div className="flex items-center justify-center mb-4">
-              <Baby className="h-8 w-8 text-blue-400" />
-              <span className="ml-2 text-xl font-bold">SmartBaby Monitor</span>
+      <footer className="bg-gray-900 border-t border-gray-800 py-12 relative z-10">
+        <div className="container mx-auto px-6">
+          <div className="flex flex-col md:flex-row justify-between items-center">
+            <div className="flex items-center space-x-2 mb-4 md:mb-0">
+              <Shield className="h-6 w-6 text-purple-400" />
+              <span className="text-xl font-bold text-white">BabyCare AI</span>
             </div>
-            <p className="text-gray-400 mb-4">Advanced IoT-powered baby monitoring for modern parents</p>
-            <div className="flex justify-center space-x-6">
-              <Link to="/login" className="text-gray-400 hover:text-white">
-                Login
-              </Link>
-              <Link to="/register" className="text-gray-400 hover:text-white">
-                Register
-              </Link>
-            </div>
+            <div className="text-gray-400">© 2024 BabyCare AI. All rights reserved.</div>
           </div>
         </div>
       </footer>

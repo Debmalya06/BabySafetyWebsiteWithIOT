@@ -3,17 +3,9 @@
 import { useState } from "react"
 import { Link } from "react-router-dom"
 import Navbar from "./Navbar"
-import { Shield, Heart, Brain, Thermometer, Droplets, Activity, Baby } from "lucide-react"
+import { Shield, Heart, Brain } from "lucide-react"
 
 const Dashboard = ({ user, onLogout }) => {
-  const [sensorData] = useState({
-    temperature: 22.5,
-    humidity: 45,
-    airQuality: "Good",
-    motionDetected: false,
-    lastActivity: "2 minutes ago",
-  })
-
   const [alerts] = useState([
     { id: 1, type: "info", message: "Baby is sleeping peacefully", time: "5 min ago" },
     { id: 2, type: "warning", message: "Room temperature slightly high", time: "15 min ago" },
@@ -21,70 +13,41 @@ const Dashboard = ({ user, onLogout }) => {
   ])
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-  {/* Grid Background */}
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-0"
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
-        backgroundSize: "40px 40px",
-      }}
-    />
-    <Navbar user={user} onLogout={onLogout} />
-      <div className="container mx-auto px-6 py-8">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 relative">
+      {/* Grid Background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
+      {/* Navbar always on top */}
+      <Navbar user={user} onLogout={onLogout} />
+      <div className="container mx-auto px-6 py-8 relative">
+        {/* ECG Heartbeat Background - behind Welcome section */}
+        <div className="absolute left-50 right-0 top-0 flex justify-center z-0" style={{ pointerEvents: "none" }}>
+          <svg width="100%" height="120" viewBox="0 0 1200 200" fill="none" style={{ opacity: 0.7 }}>
+            <polyline
+              points="0,100 100,100 140,40 180,180 220,100 360,100 400,60 440,140 480,100 1200,100.200"
+              fill="none"
+              stroke="#a78bfa"
+              strokeWidth="8"
+              strokeLinejoin="round"
+              strokeLinecap="round"
+            />
+          </svg>
+        </div>
         {/* Welcome Section */}
-        <div className="mb-8">
+        <div className="mb-8 relative z-10">
           <h1 className="text-4xl font-bold text-white mb-2">Welcome back, {user?.name}!</h1>
           <p className="text-gray-300">Monitor your baby's safety and well-being with our AI-powered system</p>
         </div>
 
-        {/* Quick Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Temperature</p>
-                <p className="text-2xl font-bold text-white">{sensorData.temperature}°C</p>
-              </div>
-              <Thermometer className="h-8 w-8 text-purple-400" />
-            </div>
-          </div>
-
-          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Humidity</p>
-                <p className="text-2xl font-bold text-white">{sensorData.humidity}%</p>
-              </div>
-              <Droplets className="h-8 w-8 text-purple-400" />
-            </div>
-          </div>
-
-          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Air Quality</p>
-                <p className="text-2xl font-bold text-white">{sensorData.airQuality}</p>
-              </div>
-              <Activity className="h-8 w-8 text-green-400" />
-            </div>
-          </div>
-
-          <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700">
-            <div className="flex items-center justify-between">
-              <div>
-                <p className="text-gray-400 text-sm">Last Activity</p>
-                <p className="text-2xl font-bold text-white">{sensorData.lastActivity}</p>
-              </div>
-              <Baby className="h-8 w-8 text-purple-400" />
-            </div>
-          </div>
-        </div>
-
         {/* Main Features */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8 relative z-10">
           <Link
             to="/object-detection"
             className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-xl border border-gray-700 hover:border-purple-500 transition-colors group"
@@ -138,7 +101,7 @@ const Dashboard = ({ user, onLogout }) => {
         </div>
 
         {/* Recent Alerts */}
-        <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-xl border border-gray-700">
+        <div className="bg-gray-800/50 backdrop-blur-sm p-8 rounded-xl border border-gray-700 relative z-10">
           <h3 className="text-2xl font-bold text-white mb-6">Recent Alerts</h3>
           <div className="space-y-4">
             {alerts.map((alert) => (

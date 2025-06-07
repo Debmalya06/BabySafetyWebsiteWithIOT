@@ -2,7 +2,7 @@
 
 import { useState } from "react"
 import Navbar from "./Navbar"
-import { Plus, Clock } from "lucide-react"
+import { Plus, Clock, Bot } from "lucide-react"
 
 const FeedingTracker = ({ user, onLogout }) => {
   const [selectedBaby, setSelectedBaby] = useState(null)
@@ -22,6 +22,8 @@ const FeedingTracker = ({ user, onLogout }) => {
     { id: 1, time: "14:30", reason: "Hunger", confidence: 85, recommendation: "Feed baby soon" },
     { id: 2, time: "18:45", reason: "Food Quality", confidence: 72, recommendation: "Check formula temperature" },
   ])
+  const [analyzing, setAnalyzing] = useState(false)
+  const [analysisError, setAnalysisError] = useState("")
 
   const babies = [
     { id: 1, name: "Emma", age: "6 months", healthIssues: "None", photo: "/placeholder.svg?height=60&width=60" },
@@ -51,19 +53,68 @@ const FeedingTracker = ({ user, onLogout }) => {
     return feedingEntries.filter((entry) => entry.date === today)
   }
 
+  // --- AI Cry Analysis Integration ---
+  const handleAnalyzeCry = async () => {
+    setAnalyzing(true)
+    setAnalysisError("")
+    try {
+      // Example payload: send latest feeding entry, room temp, etc.
+      // Replace with actual data as needed
+      const latestFeeding = getTodayEntries().slice(-1)[0] || {}
+      const payload = {
+        babyId: selectedBaby?.id,
+        lastFeedingTime: latestFeeding.time || "",
+        lastFeedingAmount: latestFeeding.amount || "",
+        lastFeedingFood: latestFeeding.food || "",
+        // Add room temperature or other relevant data if available
+        roomTemperature: 24, // Example static value; replace with real data if available
+      }
+
+      // Replace with your AI model API endpoint
+      const response = await fetch("https://your-ai-model-api.com/analyze-cry", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) throw new Error("Failed to analyze cry")
+      const data = await response.json()
+
+      // Example response: { reason: "Food Timing", confidence: 90, recommendation: "Feed baby soon" }
+      const now = new Date()
+      const timeStr = now.toTimeString().slice(0, 5)
+      setCryAnalysis([
+        {
+          id: Date.now(),
+          time: timeStr,
+          reason: data.reason || "Comfort Zone",
+          confidence: data.confidence || 60,
+          recommendation: data.recommendation || "Baby should be in comfort zone",
+        },
+        ...cryAnalysis,
+      ])
+    } catch (err) {
+      setAnalysisError("Cry analysis failed. Please try again.")
+    } finally {
+      setAnalyzing(false)
+    }
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900">
-  {/* Grid Background */}
-    <div
-      aria-hidden="true"
-      className="pointer-events-none absolute inset-0 z-0"
-      style={{
-        backgroundImage:
-          "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
-        backgroundSize: "40px 40px",
-      }}
-    />
-    <Navbar user={user} onLogout={onLogout} />
+      {/* Grid Background */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0"
+        style={{
+          backgroundImage:
+            "linear-gradient(rgba(255,255,255,0.04) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,0.04) 1px, transparent 1px)",
+          backgroundSize: "40px 40px",
+        }}
+      />
+      <Navbar user={user} onLogout={onLogout} />
       <div className="container mx-auto px-6 py-8">
         <div className="mb-8">
           <h1 className="text-4xl font-bold text-white mb-2">Smart Feeding Tracker</h1>
@@ -140,7 +191,6 @@ const FeedingTracker = ({ user, onLogout }) => {
                 <p className="text-gray-400 text-center py-8">Select a baby to view feeding log</p>
               )}
             </div>
-
             {/* Add Entry Form */}
             {showAddForm && (
               <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700">
@@ -220,7 +270,25 @@ const FeedingTracker = ({ user, onLogout }) => {
           <div className="space-y-6">
             {/* Cry Analysis */}
             <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700">
-              <h3 className="text-xl font-bold text-white mb-4">Cry Analysis</h3>
+              <div className="flex justify-between items-center mb-4">
+                <h3 className="text-xl font-bold text-white">Cry Analysis</h3>
+                <button
+                  onClick={handleAnalyzeCry}
+                  disabled={analyzing || !selectedBaby}
+                  className={`flex items-center space-x-2 px-4 py-2 rounded-lg text-white transition-colors ${
+                    analyzing || !selectedBaby
+                      ? "bg-gray-600 cursor-not-allowed"
+                      : "bg-purple-600 hover:bg-purple-700"
+                  }`}
+                  title={!selectedBaby ? "Select a baby first" : "Analyze baby cry"}
+                >
+                  <Bot className="h-4 w-4" />
+                  <span>{analyzing ? "Analyzing..." : "Analyze Baby Cry"}</span>
+                </button>
+              </div>
+              {analysisError && (
+                <div className="text-red-400 text-sm mb-2">{analysisError}</div>
+              )}
               <div className="space-y-3">
                 {cryAnalysis.map((analysis) => (
                   <div key={analysis.id} className="p-3 bg-gray-700/50 rounded-lg">

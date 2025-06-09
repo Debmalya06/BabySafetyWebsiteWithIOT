@@ -1,37 +1,14 @@
 "use client"
-
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Navbar from "./Navbar"
 import { Plus, Edit, Trash2, Heart, AlertTriangle } from "lucide-react"
+import { get, post, put, del } from "../config/AxiosHelper"
+import { toast } from "react-toastify"
+import { FaBaby } from "react-icons/fa"
+
 
 const BabyProfile = ({ user, onLogout }) => {
-  const [babies, setBabies] = useState([
-    {
-      id: 1,
-      name: "Emma",
-      age: "6 months",
-      birthDate: "2023-12-04",
-      weight: "7.2 kg",
-      height: "65 cm",
-      healthIssues: "None",
-      allergies: "None",
-      photo: "/placeholder.svg?height=120&width=120",
-      notes: "Very active and happy baby",
-    },
-    {
-      id: 2,
-      name: "Liam",
-      age: "8 months",
-      birthDate: "2023-10-04",
-      weight: "8.1 kg",
-      height: "68 cm",
-      healthIssues: "Lactose intolerant",
-      allergies: "Dairy products",
-      photo: "/placeholder.svg?height=120&width=120",
-      notes: "Loves solid foods, especially fruits",
-    },
-  ])
-
+  const [babies, setBabies] = useState([])
   const [showAddForm, setShowAddForm] = useState(false)
   const [editingBaby, setEditingBaby] = useState(null)
   const [formData, setFormData] = useState({
@@ -42,41 +19,62 @@ const BabyProfile = ({ user, onLogout }) => {
     healthIssues: "",
     allergies: "",
     notes: "",
+    gender: "",
   })
+
+  // Fetch baby profiles for the logged-in user
+  useEffect(() => {
+    const fetchBabies = async () => {
+      try {
+        const data = await get("/baby/my-babies", user?.token)
+        setBabies(data)
+      } catch (err) {
+        toast.error("Failed to load baby profiles")
+      }
+    }
+    if (user?.token) fetchBabies()
+  }, [user])
 
   const calculateAge = (birthDate) => {
     const birth = new Date(birthDate)
     const today = new Date()
     const months = (today.getFullYear() - birth.getFullYear()) * 12 + (today.getMonth() - birth.getMonth())
-    return `${months} months`
+    return months
   }
 
-  const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
     e.preventDefault()
     const babyData = {
       ...formData,
-      age: calculateAge(formData.birthDate),
-      photo: "/placeholder.svg?height=120&width=120",
+      ageInMonths: calculateAge(formData.birthDate),
     }
-
-    if (editingBaby) {
-      setBabies(babies.map((baby) => (baby.id === editingBaby.id ? { ...baby, ...babyData } : baby)))
+    try {
+      if (editingBaby) {
+        // Update
+        const updated = await put(`/baby/${editingBaby.id}`, babyData, "Baby profile updated!", user?.token)
+        setBabies(babies.map(b => (b.id === editingBaby.id ? updated : b)))
+      } else {
+        // Add
+        const added = await post("/baby/add", babyData, "Baby profile added!", user?.token)
+        setBabies([...babies, added])
+      }
+      setShowAddForm(false)
       setEditingBaby(null)
-    } else {
-      setBabies([...babies, { ...babyData, id: Date.now() }])
+      setFormData({
+        name: "",
+        birthDate: "",
+        weight: "",
+        height: "",
+        healthIssues: "",
+        allergies: "",
+        notes: "",
+        gender: "",
+      })
+    } catch (err) {
+      // Error toast handled by AxiosHelper
     }
-
-    setFormData({
-      name: "",
-      birthDate: "",
-      weight: "",
-      height: "",
-      healthIssues: "",
-      allergies: "",
-      notes: "",
-    })
-    setShowAddForm(false)
   }
+
 
   const handleEdit = (baby) => {
     setEditingBaby(baby)
@@ -88,13 +86,20 @@ const BabyProfile = ({ user, onLogout }) => {
       healthIssues: baby.healthIssues,
       allergies: baby.allergies,
       notes: baby.notes,
+      gender: baby.gender,
     })
     setShowAddForm(true)
   }
 
-  const handleDelete = (babyId) => {
+    // Delete Baby
+  const handleDelete = async (babyId) => {
     if (window.confirm("Are you sure you want to delete this baby profile?")) {
-      setBabies(babies.filter((baby) => baby.id !== babyId))
+      try {
+        await del(`/baby/${babyId}`, "Baby profile deleted!", user?.token)
+        setBabies(babies.filter((baby) => baby.id !== babyId))
+      } catch (err) {
+        // Error toast handled by AxiosHelper
+      }
     }
   }
 
@@ -134,11 +139,12 @@ const BabyProfile = ({ user, onLogout }) => {
             <div key={baby.id} className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center space-x-3">
-                  <img
+                  {/* <img
                     src={baby.photo || "/placeholder.svg"}
                     alt={baby.name}
                     className="w-16 h-16 rounded-full object-cover"
-                  />
+                  /> */}
+                  <FaBaby className="w-12 h-12 text-purple-400 bg-gray-700 rounded-full p-2" />
                   <div>
                     <h3 className="text-xl font-bold text-white">{baby.name}</h3>
                     <p className="text-gray-400">{baby.age}</p>

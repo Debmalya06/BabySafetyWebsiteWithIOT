@@ -38,4 +38,19 @@ public BabyProfile addBabyProfile(@RequestBody BabyProfileRequest request, @Auth
     public List<BabyProfile> getMyBabyProfiles(@AuthenticationPrincipal UserDetailsImpl userDetails) {
         return babyProfileService.getBabyProfilesByUserId(userDetails.getId());
     }
+    
+// filepath: d:\Web_Dev\WEB_Project\BabySafetyWebsite\server\babysafety\src\main\java\com\example\babysafety\controller\BabyProfileController.java
+
+@DeleteMapping("/{id}")
+public void deleteBabyProfile(@PathVariable String id, @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    babyProfileService.deleteBabyProfile(id, userDetails.getId());
+}
+
+@PutMapping("/{id}")
+public BabyProfile updateBabyProfile(
+        @PathVariable String id,
+        @RequestBody BabyProfileRequest request,
+        @AuthenticationPrincipal UserDetailsImpl userDetails) {
+    return babyProfileService.updateBabyProfile(id, request, userDetails.getId());
+}
 }

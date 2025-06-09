@@ -21,6 +21,6 @@ public class FeedingTime {
     private String babyId; // Link to BabyProfile
     private LocalTime time;
     private String amount;
-    private String foodType;
+    private String food;
     private String notes;
 }

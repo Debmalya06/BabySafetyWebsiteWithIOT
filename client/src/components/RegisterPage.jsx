@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Shield, Eye, EyeOff } from "lucide-react"
+import { post } from "../config/AxiosHelper"
+import { toast } from "react-toastify"
 
 const RegisterPage = ({ onLogin }) => {
   const [formData, setFormData] = useState({
@@ -25,28 +27,31 @@ const RegisterPage = ({ onLogin }) => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
+  e.preventDefault()
 
-    if (formData.password !== formData.confirmPassword) {
-      alert("Passwords do not match")
-      return
-    }
-
-    setLoading(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      const userData = {
-        id: 1,
-        name: formData.name,
-        email: formData.email,
-        phone: formData.phone,
-      }
-      onLogin(userData)
-      navigate("/dashboard")
-      setLoading(false)
-    }, 1000)
+  if (formData.password !== formData.confirmPassword) {
+    toast.error("Passwords do not match")
+    return
   }
+
+  setLoading(true)
+  try {
+    await post(
+      "/auth/signup",
+      {
+        username: formData.name,
+        email: formData.email,
+        mobileNumber: formData.phone,
+        password: formData.password,
+      },
+      "Registration successful! Please login."
+    )
+    navigate("/login")
+  } catch (err) {
+    // Error toast handled in AxiosHelper
+  }
+  setLoading(false)
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">

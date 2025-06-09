@@ -3,6 +3,8 @@
 import { useState } from "react"
 import { Link, useNavigate } from "react-router-dom"
 import { Shield, Eye, EyeOff } from "lucide-react"
+import { post } from "../config/AxiosHelper"
+import { toast } from "react-toastify"
 
 const LoginPage = ({ onLogin }) => {
   const [formData, setFormData] = useState({
@@ -21,22 +23,30 @@ const LoginPage = ({ onLogin }) => {
   }
 
   const handleSubmit = async (e) => {
-    e.preventDefault()
-    setLoading(true)
-
-    // Simulate API call
-    setTimeout(() => {
-      const userData = {
-        id: 1,
-        name: "John Doe",
+  e.preventDefault()
+  setLoading(true)
+  try {
+    const data = await post(
+      "/auth/login",
+      {
         email: formData.email,
-        phone: "+1234567890",
-      }
-      onLogin(userData)
-      navigate("/dashboard")
-      setLoading(false)
-    }, 1000)
+        password: formData.password,
+      },
+      "Login successful!"
+    )
+    // Save user info (customize as needed)
+    onLogin({
+      id: data.id,
+      name: data.username,
+      email: data.email,
+      token: data.token,
+    })
+    navigate("/dashboard")
+  } catch (err) {
+    // Error toast handled in AxiosHelper
   }
+  setLoading(false)
+}
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-900 via-purple-900 to-gray-900 flex items-center justify-center p-4">

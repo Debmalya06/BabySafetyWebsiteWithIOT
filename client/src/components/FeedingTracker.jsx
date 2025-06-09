@@ -1,23 +1,27 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Navbar from "./Navbar"
 import { Plus, Clock, Bot } from "lucide-react"
+import { post, get } from "../config/AxiosHelper"
+import { FaBaby } from "react-icons/fa"
 
 const FeedingTracker = ({ user, onLogout }) => {
   const [selectedBaby, setSelectedBaby] = useState(null)
+  const [babies, setBabies] = useState([])
   const [feedingEntries, setFeedingEntries] = useState([
-    { id: 1, time: "08:00", food: "Breast Milk", amount: "120ml", notes: "Good appetite", date: "2024-06-04" },
-    { id: 2, time: "12:00", food: "Baby Formula", amount: "100ml", notes: "Finished completely", date: "2024-06-04" },
-    { id: 3, time: "16:00", food: "Puree (Apple)", amount: "50g", notes: "Loved it!", date: "2024-06-04" },
+    // You can remove these demo entries if you want only DB data
+    { id: 1, babyId: 1, time: "08:00", food: "Breast Milk", amount: "120ml", notes: "Good appetite", date: "2024-06-04" },
+    { id: 2, babyId: 1, time: "12:00", food: "Baby Formula", amount: "100ml", notes: "Finished completely", date: "2024-06-04" },
+    { id: 3, babyId: 2, time: "16:00", food: "Puree (Apple)", amount: "50g", notes: "Loved it!", date: "2024-06-04" },
   ])
   const [showAddForm, setShowAddForm] = useState(false)
   const [newEntry, setNewEntry] = useState({
-    time: "",
-    food: "",
-    amount: "",
-    notes: "",
-  })
+  time: "",
+  food: "",      // <-- change this line
+  amount: "",
+  notes: "",
+})
   const [cryAnalysis, setCryAnalysis] = useState([
     { id: 1, time: "14:30", reason: "Hunger", confidence: 85, recommendation: "Feed baby soon" },
     { id: 2, time: "18:45", reason: "Food Quality", confidence: 72, recommendation: "Check formula temperature" },
@@ -25,32 +29,46 @@ const FeedingTracker = ({ user, onLogout }) => {
   const [analyzing, setAnalyzing] = useState(false)
   const [analysisError, setAnalysisError] = useState("")
 
-  const babies = [
-    { id: 1, name: "Emma", age: "6 months", healthIssues: "None", photo: "/placeholder.svg?height=60&width=60" },
-    {
-      id: 2,
-      name: "Liam",
-      age: "8 months",
-      healthIssues: "Lactose intolerant",
-      photo: "/placeholder.svg?height=60&width=60",
-    },
-  ]
-
-  const handleAddEntry = (e) => {
-    e.preventDefault()
-    const entry = {
-      id: Date.now(),
-      ...newEntry,
-      date: new Date().toISOString().split("T")[0],
+  // Fetch babies from backend
+  useEffect(() => {
+    const fetchBabies = async () => {
+      try {
+        const data = await get("/baby/my-babies", user?.token)
+        setBabies(data)
+      } catch (err) {
+        // Optionally show a toast or handle error
+      }
     }
-    setFeedingEntries([...feedingEntries, entry])
-    setNewEntry({ time: "", food: "", amount: "", notes: "" })
-    setShowAddForm(false)
+    if (user?.token) fetchBabies()
+  }, [user])
+
+  // Get today's feeding entries for the selected baby
+  const getTodayEntries = () => {
+    if (!selectedBaby) return []
+    const today = new Date().toISOString().split("T")[0]
+    return feedingEntries.filter(
+      (entry) => entry.babyId === selectedBaby.id && entry.date === today
+    )
   }
 
-  const getTodayEntries = () => {
-    const today = new Date().toISOString().split("T")[0]
-    return feedingEntries.filter((entry) => entry.date === today)
+  // Add feeding entry
+  const handleAddEntry = async (e) => {
+    e.preventDefault()
+    const entry = {
+      ...newEntry,
+      babyId: selectedBaby?.id,
+      date: new Date().toISOString().split("T")[0],
+    }
+    try {
+      // Save to backend
+      await post("/feeding/add", entry, "Feeding entry added!", user?.token)
+      // Optionally, fetch updated feeding entries from backend here
+      setFeedingEntries([...feedingEntries, { id: Date.now(), ...entry }])
+      setNewEntry({ time: "", food: "", amount: "", notes: "" })
+      setShowAddForm(false)
+    } catch (err) {
+      // Error toast handled by AxiosHelper
+    }
   }
 
   // --- AI Cry Analysis Integration ---
@@ -58,18 +76,14 @@ const FeedingTracker = ({ user, onLogout }) => {
     setAnalyzing(true)
     setAnalysisError("")
     try {
-      // Example payload: send latest feeding entry, room temp, etc.
-      // Replace with actual data as needed
       const latestFeeding = getTodayEntries().slice(-1)[0] || {}
       const payload = {
         babyId: selectedBaby?.id,
         lastFeedingTime: latestFeeding.time || "",
         lastFeedingAmount: latestFeeding.amount || "",
         lastFeedingFood: latestFeeding.food || "",
-        // Add room temperature or other relevant data if available
-        roomTemperature: 24, // Example static value; replace with real data if available
+        roomTemperature: 24,
       }
-
       // Replace with your AI model API endpoint
       const response = await fetch("https://your-ai-model-api.com/analyze-cry", {
         method: "POST",
@@ -78,11 +92,8 @@ const FeedingTracker = ({ user, onLogout }) => {
         },
         body: JSON.stringify(payload),
       })
-
       if (!response.ok) throw new Error("Failed to analyze cry")
       const data = await response.json()
-
-      // Example response: { reason: "Food Timing", confidence: 90, recommendation: "Feed baby soon" }
       const now = new Date()
       const timeStr = now.toTimeString().slice(0, 5)
       setCryAnalysis([
@@ -126,6 +137,9 @@ const FeedingTracker = ({ user, onLogout }) => {
           <div className="bg-gray-800/50 backdrop-blur-sm p-6 rounded-xl border border-gray-700">
             <h3 className="text-xl font-bold text-white mb-4">Select Baby</h3>
             <div className="space-y-3">
+              {babies.length === 0 && (
+                <p className="text-gray-400 text-center">No babies found. Add a baby profile first.</p>
+              )}
               {babies.map((baby) => (
                 <div
                   key={baby.id}
@@ -137,15 +151,18 @@ const FeedingTracker = ({ user, onLogout }) => {
                   }`}
                 >
                   <div className="flex items-center space-x-3">
-                    <img
+                    {/* <img
                       src={baby.photo || "/placeholder.svg"}
                       alt={baby.name}
                       className="w-12 h-12 rounded-full object-cover"
-                    />
+                    /> */}
+                    <FaBaby className="w-12 h-12 text-purple-400 bg-gray-700 rounded-full p-2" />
                     <div>
                       <p className="text-white font-medium">{baby.name}</p>
-                      <p className="text-gray-400 text-sm">{baby.age}</p>
-                      {baby.healthIssues !== "None" && <p className="text-yellow-400 text-xs">{baby.healthIssues}</p>}
+                      <p className="text-gray-400 text-sm">{baby.age || ""}</p>
+                      {baby.healthIssues && baby.healthIssues !== "None" && (
+                        <p className="text-yellow-400 text-xs">{baby.healthIssues}</p>
+                      )}
                     </div>
                   </div>
                 </div>

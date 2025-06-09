@@ -10,6 +10,9 @@ import ObjectDetection from "./components/ObjectDetection"
 import EmotionDetection from "./components/EmotionDetection"
 import FeedingTracker from "./components/FeedingTracker"
 import BabyProfile from "./components/BabyProfile"
+import { ToastContainer } from "react-toastify"
+import "react-toastify/dist/ReactToastify.css"
+
 import "./App.css"
 
 function App() {
@@ -77,6 +80,8 @@ function App() {
             element={isAuthenticated ? <BabyProfile user={user} onLogout={handleLogout} /> : <Navigate to="/login" />}
           />
         </Routes>
+          <ToastContainer />
+
       </div>
     </Router>
   )

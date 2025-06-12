@@ -16,7 +16,13 @@ public class FeedingTimeService {
         return repository.save(feedingTime);
     }
 
-    public List<FeedingTime> getFeedingTimesByBabyId(String babyId) {
-        return repository.findByBabyId(babyId);
-    }
+   public List<FeedingTime> getFeedingTimesByBabyId(String babyId) {
+    List<FeedingTime> result = repository.findByBabyId(babyId);
+    System.out.println("babyId: " + babyId + ", result: " + result);
+    return result;
+}
+
+public List<FeedingTime> getAllFeedingTimes() {
+    return repository.findAll();
+}
 }

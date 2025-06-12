@@ -1,4 +1,4 @@
-# main.py - FastAPI Backend
+# app.py - Fixed FastAPI Backend
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel, Field
 from typing import Optional, List
@@ -8,22 +8,7 @@ import pandas as pd
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 import os
-
-# Initialize FastAPI app
-app = FastAPI(
-    title="Baby Feeding Suitability API",
-    description="AI-powered baby feeding analysis and recommendations",
-    version="1.0.0"
-)
-
-# Add CORS middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+from contextlib import asynccontextmanager
 
 # Pydantic models for request/response
 class FeedingRequest(BaseModel):
@@ -57,14 +42,22 @@ class BabyFeedingPredictor:
         try:
             if os.path.exists("model/feeding_model.pkl"):
                 self.feeding_model = joblib.load("model/feeding_model.pkl")
+                print("Feeding model loaded successfully.")
+            else:
+                print("Warning: feeding_model.pkl not found. Using fallback predictions.")
+                
             if os.path.exists("model/food_type_encoder.pkl"):
                 self.food_encoder = joblib.load("model/food_type_encoder.pkl")
+                print("Food encoder loaded successfully.")
+            else:
+                print("Warning: food_type_encoder.pkl not found. Using fallback encoding.")
             
             self.model_loaded = True
-            print("Models loaded successfully.")
+            print("Model loading completed.")
             return True
         except Exception as e:
             print(f"Error loading models: {e}")
+            self.model_loaded = True  # Set to True to allow fallback predictions
             return False
     
     def estimate_baby_metrics(self, age_months):
@@ -83,7 +76,7 @@ class BabyFeedingPredictor:
         """Main prediction function"""
         if not self.model_loaded:
             if not self.load_models():
-                raise HTTPException(status_code=500, detail="Models not available")
+                print("Warning: Models not available, using fallback predictions")
         
         # Estimate missing metrics
         if request.baby_weight_kg is None or request.baby_height_cm is None:
@@ -96,13 +89,14 @@ class BabyFeedingPredictor:
         
         # Prepare features for prediction
         try:
-            if self.food_encoder:
+            if self.food_encoder and hasattr(self.food_encoder, 'transform'):
                 food_type_encoded = self.food_encoder.transform([request.food_type])[0]
             else:
                 # Fallback encoding
                 food_types = {"Formula": 0, "Breast Milk": 1, "Solid": 2, "Liquid": 0, "Semi": 1}
                 food_type_encoded = food_types.get(request.food_type, 0)
-        except:
+        except Exception as e:
+            print(f"Error encoding food type: {e}")
             food_types = {"Formula": 0, "Breast Milk": 1, "Solid": 2, "Liquid": 0, "Semi": 1}
             food_type_encoded = food_types.get(request.food_type, 0)
         
@@ -125,9 +119,13 @@ class BabyFeedingPredictor:
         ]])
         
         # Make prediction
-        if self.feeding_model:
-            prediction = self.feeding_model.predict(features)[0]
-            confidence = float(max(self.feeding_model.predict_proba(features)[0]))
+        if self.feeding_model and hasattr(self.feeding_model, 'predict'):
+            try:
+                prediction = self.feeding_model.predict(features)[0]
+                confidence = float(max(self.feeding_model.predict_proba(features)[0]))
+            except Exception as e:
+                print(f"Error with model prediction: {e}")
+                prediction, confidence = self.rule_based_prediction(request)
         else:
             # Fallback rule-based prediction
             prediction, confidence = self.rule_based_prediction(request)
@@ -139,6 +137,8 @@ class BabyFeedingPredictor:
         if request.baby_crying:
             cry_reasons = self.analyze_cry_reasons(request, weight, height)
             recommendations = self.generate_recommendations(request, prediction, cry_reasons)
+        else:
+            recommendations = self.generate_recommendations(request, prediction, [])
         
         # Feeding analysis
         feeding_analysis = self.analyze_feeding_conditions(request, weight, height)
@@ -147,7 +147,7 @@ class BabyFeedingPredictor:
             status="success",
             feeding_suitable=bool(prediction),
             confidence=confidence,
-            baby_crying=request.baby_crying,
+            baby_crying=bool(request.baby_crying),
             cry_reasons=cry_reasons,
             recommendations=recommendations,
             feeding_analysis=feeding_analysis
@@ -276,13 +276,35 @@ class BabyFeedingPredictor:
             "estimated_height_cm": round(height, 1)
         }
 
-# Initialize predictor
+# Initialize predictor globally
 predictor = BabyFeedingPredictor()
 
-@app.on_event("startup")
-async def startup_event():
-    """Load models on startup"""
+# Lifespan event handler (replaces @app.on_event("startup"))
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    # Startup
+    print("Starting up Baby Feeding API...")
     predictor.load_models()
+    yield
+    # Shutdown
+    print("Shutting down Baby Feeding API...")
+
+# Initialize FastAPI app with lifespan
+app = FastAPI(
+    title="Baby Feeding Suitability API",
+    description="AI-powered baby feeding analysis and recommendations",
+    version="1.0.0",
+    lifespan=lifespan
+)
+
+# Add CORS middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 @app.get("/")
 async def root():
@@ -299,6 +321,7 @@ async def analyze_feeding(request: FeedingRequest):
         result = predictor.predict_feeding(request)
         return result
     except Exception as e:
+        print(f"Error in analyze_feeding: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Analysis failed: {str(e)}")
 
 @app.get("/food-types")

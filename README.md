@@ -1,4 +1,4 @@
-# 🍼 Baby Safety Website with IoT Integration
+# 🍼 Baby Safety Website with IoT Integration (BabyAI)
 
 A full-stack IoT-powered solution that ensures real-time baby safety monitoring using ESP modules and Spring Boot. This system provides live sensor alerts, user authentication, and a dashboard tailored for parents and caregivers.
 
@@ -17,5 +17,6 @@ A full-stack IoT-powered solution that ensures real-time baby safety monitoring 
 | Frontend | Backend       | IoT Module | Database | ML Model | 
 |----------|---------------|------------|----------|----------|
 | React    | Spring Boot   | ESP Module | MongoDB  | Fast API |  
+![image](https://github.com/user-attachments/assets/82afff46-a80a-4b6e-98b9-d3e129037c92)
 
 
